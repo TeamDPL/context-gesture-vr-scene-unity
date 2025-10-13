@@ -59,12 +59,12 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
     private readonly Dictionary<OVRSkeleton.BoneId, int> _boneIdToMediaPipeIndex = new Dictionary<OVRSkeleton.BoneId, int>
     {
         // CHANGE #2: All enum values now reference OVRSkeleton.BoneId.
-        { OVRSkeleton.BoneId.Hand_WristRoot, 0 },
-        { OVRSkeleton.BoneId.Hand_Thumb0, 1 }, { OVRSkeleton.BoneId.Hand_Thumb1, 2 }, { OVRSkeleton.BoneId.Hand_Thumb2, 3 }, { OVRSkeleton.BoneId.Hand_Thumb3, 4 },
-        { OVRSkeleton.BoneId.Hand_Index1, 5 }, { OVRSkeleton.BoneId.Hand_Index2, 6 }, { OVRSkeleton.BoneId.Hand_Index3, 7 }, { OVRSkeleton.BoneId.Hand_IndexTip, 8 },
-        { OVRSkeleton.BoneId.Hand_Middle1, 9 }, { OVRSkeleton.BoneId.Hand_Middle2, 10 }, { OVRSkeleton.BoneId.Hand_Middle3, 11 }, { OVRSkeleton.BoneId.Hand_MiddleTip, 12 },
-        { OVRSkeleton.BoneId.Hand_Ring1, 13 }, { OVRSkeleton.BoneId.Hand_Ring2, 14 }, { OVRSkeleton.BoneId.Hand_Ring3, 15 }, { OVRSkeleton.BoneId.Hand_RingTip, 16 },
-        { OVRSkeleton.BoneId.Hand_Pinky1, 17 }, { OVRSkeleton.BoneId.Hand_Pinky2, 18 }, { OVRSkeleton.BoneId.Hand_Pinky3, 19 }, { OVRSkeleton.BoneId.Hand_PinkyTip, 20 }
+        { OVRSkeleton.BoneId.XRHand_Wrist, 0 },
+        { OVRSkeleton.BoneId.XRHand_ThumbMetacarpal, 1 }, { OVRSkeleton.BoneId.XRHand_ThumbProximal, 2 }, { OVRSkeleton.BoneId.XRHand_ThumbDistal, 3 }, { OVRSkeleton.BoneId.XRHand_ThumbTip, 4 },
+        { OVRSkeleton.BoneId.XRHand_IndexProximal, 5 }, { OVRSkeleton.BoneId.XRHand_IndexIntermediate, 6 }, { OVRSkeleton.BoneId.XRHand_IndexDistal, 7 }, { OVRSkeleton.BoneId.XRHand_IndexTip, 8 },
+        { OVRSkeleton.BoneId.XRHand_MiddleProximal, 9 }, { OVRSkeleton.BoneId.XRHand_MiddleIntermediate, 10 }, { OVRSkeleton.BoneId.XRHand_MiddleDistal, 11 }, { OVRSkeleton.BoneId.XRHand_MiddleTip, 12 },
+        { OVRSkeleton.BoneId.XRHand_RingProximal, 13 }, { OVRSkeleton.BoneId.XRHand_RingIntermediate, 14 }, { OVRSkeleton.BoneId.XRHand_RingDistal, 15 }, { OVRSkeleton.BoneId.XRHand_RingTip, 16 },
+        { OVRSkeleton.BoneId.XRHand_LittleProximal, 17 }, { OVRSkeleton.BoneId.XRHand_LittleIntermediate, 18 }, { OVRSkeleton.BoneId.XRHand_LittleDistal, 19 }, { OVRSkeleton.BoneId.XRHand_LittleTip, 20 }
     };
 
     void Start()
@@ -78,7 +78,7 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
         ProcessHand(leftHand);
         ProcessHand(rightHand);
 
-        if (Input.GetKeyDown(KeyCode.S))
+        if (OVRInput.GetDown(OVRInput.Button.One))
         {
             SaveLandmarksToFile(leftHand);
             SaveLandmarksToFile(rightHand);

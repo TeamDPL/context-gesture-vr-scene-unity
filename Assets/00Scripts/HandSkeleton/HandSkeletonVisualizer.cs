@@ -22,18 +22,17 @@ public class HandSkeletonVisualizer : MonoBehaviour
     private readonly HashSet<OVRSkeleton.BoneId> _mediaPipeBones = new HashSet<OVRSkeleton.BoneId>
     {
         // Wrist
-        OVRSkeleton.BoneId.Hand_WristRoot,
+        OVRSkeleton.BoneId.XRHand_Wrist,
         // Thumb
-        OVRSkeleton.BoneId.Hand_Thumb1, OVRSkeleton.BoneId.Hand_Thumb2, OVRSkeleton.BoneId.Hand_Thumb3,
+        OVRSkeleton.BoneId.XRHand_ThumbMetacarpal, OVRSkeleton.BoneId.XRHand_ThumbProximal, OVRSkeleton.BoneId.XRHand_ThumbDistal, OVRSkeleton.BoneId.XRHand_ThumbTip,
         // Index
-        OVRSkeleton.BoneId.Hand_Index1, OVRSkeleton.BoneId.Hand_Index2, OVRSkeleton.BoneId.Hand_Index3, OVRSkeleton.BoneId.Hand_IndexTip,
+        OVRSkeleton.BoneId.XRHand_IndexProximal, OVRSkeleton.BoneId.XRHand_IndexIntermediate, OVRSkeleton.BoneId.XRHand_IndexDistal, OVRSkeleton.BoneId.XRHand_IndexTip,
         // Middle
-        OVRSkeleton.BoneId.Hand_Middle1, OVRSkeleton.BoneId.Hand_Middle2, OVRSkeleton.BoneId.Hand_Middle3, OVRSkeleton.BoneId.Hand_MiddleTip,
+        OVRSkeleton.BoneId.XRHand_MiddleProximal, OVRSkeleton.BoneId.XRHand_MiddleIntermediate, OVRSkeleton.BoneId.XRHand_MiddleDistal, OVRSkeleton.BoneId.XRHand_MiddleTip,
         // Ring
-        OVRSkeleton.BoneId.Hand_Ring1, OVRSkeleton.BoneId.Hand_Ring2, OVRSkeleton.BoneId.Hand_Ring3, OVRSkeleton.BoneId.Hand_RingTip,
+        OVRSkeleton.BoneId.XRHand_RingProximal, OVRSkeleton.BoneId.XRHand_RingIntermediate, OVRSkeleton.BoneId.XRHand_RingDistal, OVRSkeleton.BoneId.XRHand_RingTip,
         // Pinky
-        OVRSkeleton.BoneId.Hand_Pinky1, OVRSkeleton.BoneId.Hand_Pinky2, OVRSkeleton.BoneId.Hand_Pinky3, OVRSkeleton.BoneId.Hand_PinkyTip
-        // Note: Hand_Thumb0 (THUMB_CMC in MediaPipe) is visually represented by the line from Wrist to Thumb1.
+        OVRSkeleton.BoneId.XRHand_LittleProximal, OVRSkeleton.BoneId.XRHand_LittleIntermediate, OVRSkeleton.BoneId.XRHand_LittleDistal, OVRSkeleton.BoneId.XRHand_LittleTip,
     };
 
     void Update()
@@ -71,19 +70,16 @@ public class HandSkeletonVisualizer : MonoBehaviour
                 jointObj.transform.localRotation = Quaternion.identity;
                 jointObj.transform.localScale = Vector3.one * jointScale;
             }
-
-            // Create and configure the bone line.
-            if (bone.ParentBoneIndex != -1)
+            
+            if (_mediaPipeBones.Contains(bone.Id) && bone.Id != OVRSkeleton.BoneId.XRHand_Wrist)
             {
-                LineRenderer line = bone.Transform.gameObject.AddComponent<LineRenderer>();
+                var line = bone.Transform.gameObject.AddComponent<LineRenderer>();
                 line.material = lineMaterial;
                 line.startWidth = lineWidth;
                 line.endWidth = lineWidth;
                 line.positionCount = 2;
-                line.useWorldSpace = false; // Use local space for efficiency.
-                line.SetPosition(0, Vector3.zero); // Start point is always the bone's origin.
-
-                // Store the line renderer so we can update it later.
+                line.useWorldSpace = false; // Remains local space.
+                
                 _boneLines.Add(line);
                 _bonesToUpdate.Add(bone);
             }
@@ -96,10 +92,22 @@ public class HandSkeletonVisualizer : MonoBehaviour
         {
             OVRBone bone = _bonesToUpdate[i];
             LineRenderer line = _boneLines[i];
-            
-            Transform parentTransform = skeleton.Bones[bone.ParentBoneIndex].Transform;
-            Vector3 parentLocalPosition = bone.Transform.InverseTransformPoint(parentTransform.position);
-            line.SetPosition(1, parentLocalPosition);
+
+            if (bone.Id != OVRSkeleton.BoneId.XRHand_IndexProximal
+                && bone.Id != OVRSkeleton.BoneId.XRHand_MiddleProximal
+                && bone.Id != OVRSkeleton.BoneId.XRHand_RingProximal
+                && bone.Id != OVRSkeleton.BoneId.XRHand_LittleProximal)
+            {
+                Transform parentTransform = skeleton.Bones[bone.ParentBoneIndex].Transform;
+                
+                line.SetPosition(0, Vector3.zero); // Start at the current bone's own transform origin
+                line.SetPosition(1, bone.Transform.InverseTransformPoint(parentTransform.position));
+            }
+            else
+            {
+                line.SetPosition(0, Vector3.zero); // Start at the current bone's own transform origin
+                line.SetPosition(1, bone.Transform.InverseTransformPoint(skeleton.Bones[_bonesToUpdate[0].ParentBoneIndex].Transform.position));
+            }
         }
     }
 }
