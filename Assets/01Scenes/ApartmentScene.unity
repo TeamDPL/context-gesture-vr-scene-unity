@@ -1741,6 +1741,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1030988756, guid: abc00000000003277687722025950104, type: 3}
   m_PrefabInstance: {fileID: 70787268}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &71689153
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 71689154}
+  m_Layer: 0
+  m_Name: ===Managers===
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &71689154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71689153}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.28186, y: 3.79456, z: -4.2829}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1310326355}
+  - {fileID: 758363004}
+  - {fileID: 2079400302}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &75942761
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20276,12 +20310,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 758363002}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.72772, y: 1.36, z: 4.28833}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -11.009581, y: -2.4345598, z: 8.57123}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 71689154}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &758363005
 MonoBehaviour:
@@ -32969,6 +33003,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1030992352, guid: abc00000000016941430899081180713, type: 3}
   m_PrefabInstance: {fileID: 1304752752}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1310326354
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310326355}
+  - component: {fileID: 1310326356}
+  m_Layer: 0
+  m_Name: NetworkManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1310326355
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310326354}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 71689154}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1310326356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310326354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e76ba60bafc3c1e4b892e3707c620688, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GestureNetwork
+  handProcessor: {fileID: 2079400303}
+  backendUrl: http://127.0.0.1:8000/process-gesture/
 --- !u!1001 &1311628530
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54684,7 +54764,7 @@ GameObject:
   - component: {fileID: 2079400304}
   - component: {fileID: 2079400305}
   m_Layer: 0
-  m_Name: OVRSkeleton2MediaPipeCoords
+  m_Name: OVRSkeleton2MediaPipeManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -54698,12 +54778,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2079400300}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.90074, y: 1.4016, z: 1.93741}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.3811201, y: -2.39296, z: 6.2203097}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 71689154}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2079400303
 MonoBehaviour:
@@ -54719,16 +54799,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OVRSkeletonToMediaPipe
   leftHand:
     ovrSkeleton: {fileID: 1684305612}
-    jsonOutput: 
     mediaPipeLandmarks: []
-    landmarkList:
-      landmarks: []
+    outputData:
+      world_wrist_root:
+        x: 0
+        y: 0
+        z: 0
+      relative_landmarks: []
   rightHand:
     ovrSkeleton: {fileID: 2003398357}
-    jsonOutput: 
     mediaPipeLandmarks: []
-    landmarkList:
-      landmarks: []
+    outputData:
+      world_wrist_root:
+        x: 0
+        y: 0
+        z: 0
+      relative_landmarks: []
 --- !u!114 &2079400304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56455,8 +56541,7 @@ SceneRoots:
   - {fileID: 356319311}
   - {fileID: 1624442494}
   - {fileID: 53017360}
-  - {fileID: 2079400302}
   - {fileID: 1643728068}
   - {fileID: 1594909129}
-  - {fileID: 758363004}
   - {fileID: 1517998290}
+  - {fileID: 71689154}

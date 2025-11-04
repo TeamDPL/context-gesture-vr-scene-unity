@@ -1,30 +1,13 @@
-using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using UnityEngine.Networking;
 
-// --- Helper classes for JSON serialization (No changes here) ---
 [System.Serializable]
 public class Landmark
 {
     public float x;
     public float y;
     public float z;
-}
-
-/*[System.Serializable]
-public class LandmarkList
-{
-    public List<Landmark> landmarks = new List<Landmark>();
-}*/
-
-[System.Serializable]
-public class BothHandsData
-{
-    public string left_hand_coords;
-    public string right_hand_coords;
 }
 
 [System.Serializable]
@@ -34,17 +17,11 @@ public class HandOutputData
     public List<Landmark> relative_landmarks = new List<Landmark>();
 }
 
-// --- Class to manage data for a single hand (No changes here) ---
 [System.Serializable]
 public class HandData
 {
     [Tooltip("The OVRSkeleton component for this hand.")]
     public OVRSkeleton ovrSkeleton;
-
-    [Header("Output")]
-    [Tooltip("The final JSON output for this hand.")]
-    [TextArea(5, 10)]
-    public string jsonOutput;
 
     [HideInInspector]
     public List<Vector3> mediaPipeLandmarks = new List<Vector3>(21);
@@ -66,17 +43,15 @@ public class HandData
 }
 
 
-// --- Main MonoBehaviour ---
+// --- Main MonoBehaviour (Now much cleaner!) ---
 public class OVRSkeletonToMediaPipe : MonoBehaviour
 {
     [Header("Hand Skeletons")]
     public HandData leftHand;
     public HandData rightHand;
-
-    // CHANGE #1: The Dictionary now uses OVRSkeleton.BoneId as its key.
+    
     private readonly Dictionary<OVRSkeleton.BoneId, int> _boneIdToMediaPipeIndex = new Dictionary<OVRSkeleton.BoneId, int>
     {
-        // CHANGE #2: All enum values now reference OVRSkeleton.BoneId.
         { OVRSkeleton.BoneId.XRHand_Wrist, 0 },
         { OVRSkeleton.BoneId.XRHand_ThumbMetacarpal, 1 }, { OVRSkeleton.BoneId.XRHand_ThumbProximal, 2 }, { OVRSkeleton.BoneId.XRHand_ThumbDistal, 3 }, { OVRSkeleton.BoneId.XRHand_ThumbTip, 4 },
         { OVRSkeleton.BoneId.XRHand_IndexProximal, 5 }, { OVRSkeleton.BoneId.XRHand_IndexIntermediate, 6 }, { OVRSkeleton.BoneId.XRHand_IndexDistal, 7 }, { OVRSkeleton.BoneId.XRHand_IndexTip, 8 },
@@ -95,15 +70,12 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
     {
         ProcessHand(leftHand);
         ProcessHand(rightHand);
-
-        if (OVRInput.GetDown(OVRInput.Button.One))
-        {
-            // SaveLandmarksToFile(leftHand);
-            // SaveLandmarksToFile(rightHand);
-            SendGestureData();
-        }
-        
-        
+    }
+    
+    public bool IsDataReady()
+    {
+        return (leftHand.IsInitialized && leftHand.ovrSkeleton.IsDataValid) || 
+               (rightHand.IsInitialized && rightHand.ovrSkeleton.IsDataValid);
     }
 
     private void ProcessHand(HandData hand)
@@ -136,57 +108,6 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
             hand.outputData.relative_landmarks[i].x = hand.mediaPipeLandmarks[i].x;
             hand.outputData.relative_landmarks[i].y = hand.mediaPipeLandmarks[i].y;
             hand.outputData.relative_landmarks[i].z = hand.mediaPipeLandmarks[i].z;
-        }
-        hand.jsonOutput = JsonUtility.ToJson(hand.outputData, true);
-    }
-
-    public void SaveLandmarksToFile(HandData hand)
-    {
-        if (!hand.ovrSkeleton || !hand.ovrSkeleton.IsDataValid) return;
-
-        string handType = hand.ovrSkeleton.GetSkeletonType().ToString();
-        string fileName = $"hand_landmarks_{handType}_{System.DateTime.Now:yyyyMMdd_HHmmss}.json";
-        string path = Path.Combine(Application.persistentDataPath, fileName);
-
-        File.WriteAllText(path, hand.jsonOutput);
-        Debug.Log($"<color=lime>Saved {handType} landmarks to: {path}</color>");
-    }
-
-    public void SendGestureData()
-    {
-        StartCoroutine(PostGestureRequest("http://127.0.0.1:8000/process-gesture/"));
-    }
-
-    IEnumerator PostGestureRequest(string url)
-    {
-        BothHandsData data = new BothHandsData();
-
-        data.left_hand_coords = leftHand.jsonOutput;
-        data.right_hand_coords = rightHand.jsonOutput;
-        
-        string jsonData = JsonUtility.ToJson(data, true);
-        
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            // 4. Send the request and wait for a response
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                // 5. Successfully received a response from Python
-                Debug.Log("Python Response: " + request.downloadHandler.text);
-                // You can now parse this response (e.g., using JsonUtility.FromJson)
-                // and trigger the action in-game.
-            }
-            else
-            {
-                Debug.LogError("Error: " + request.error);
-            }
         }
     }
 }
