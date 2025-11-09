@@ -20155,7 +20155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &758363004
 Transform:
   m_ObjectHideFlags: 0
@@ -33067,7 +33067,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GestureNetwork
   handProcessor: {fileID: 2079400303}
   serverUrl: ws://127.0.0.1:8000/ws/process-gesture-stream
-  framesPerSecond: 20
+  handDataFPS: 20
+  screenCaptureFPS: 20
+  vrCamera: {fileID: 749782525}
+  captureWidth: 640
+  captureHeight: 480
+  jpgQuality: 75
 --- !u!1001 &1311628530
 PrefabInstance:
   m_ObjectHideFlags: 0
