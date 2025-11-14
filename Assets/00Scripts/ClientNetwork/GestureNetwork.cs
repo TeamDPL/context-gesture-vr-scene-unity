@@ -1,7 +1,18 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using WebSocketSharp;
+
+[System.Serializable]
+public class BoundingBox
+{
+    public string label;
+    public float x;
+    public float y;
+    public float width;
+    public float height;
+}
 
 [System.Serializable]
 public class GesturePayload
@@ -9,6 +20,7 @@ public class GesturePayload
     public HandOutputData left_hand;
     public HandOutputData right_hand;
     public string screen_capture;
+    public List<BoundingBox> boxes = new List<BoundingBox>();
     // or other data
 }
 
@@ -120,11 +132,8 @@ public class GestureNetwork : MonoBehaviour
             
             string jsonData = JsonUtility.ToJson(payload);
             ws.Send(jsonData);
-            
-            if (payload.screen_capture != null)
-            {
-                payload.screen_capture = null;
-            }
+
+            payload.screen_capture = null;
         }
     }
     

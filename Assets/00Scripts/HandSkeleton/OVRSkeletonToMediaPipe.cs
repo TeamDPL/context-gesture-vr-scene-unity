@@ -13,7 +13,7 @@ public class Landmark
 [System.Serializable]
 public class HandOutputData
 {
-    public Landmark world_wrist_root = new Landmark();
+    public Landmark world_left_hand_wrist_root = new Landmark();
     public List<Landmark> relative_landmarks = new List<Landmark>();
 }
 
@@ -49,6 +49,8 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
     [Header("Hand Skeletons")]
     public HandData leftHand;
     public HandData rightHand;
+
+    private Transform _leftHandWristPosition;
     
     private readonly Dictionary<OVRSkeleton.BoneId, int> _boneIdToMediaPipeIndex = new Dictionary<OVRSkeleton.BoneId, int>
     {
@@ -68,8 +70,17 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
 
     void Update()
     {
-        ProcessHand(leftHand);
-        ProcessHand(rightHand);
+        if (leftHand.ovrSkeleton && leftHand.ovrSkeleton.IsDataValid && leftHand.IsInitialized)
+        {
+            _leftHandWristPosition = leftHand.ovrSkeleton.Bones[(int)OVRSkeleton.BoneId.XRHand_Wrist].Transform;
+            ProcessHand(leftHand, _leftHandWristPosition);
+        }
+
+        if (_leftHandWristPosition && rightHand.ovrSkeleton && rightHand.ovrSkeleton.IsDataValid &&
+            rightHand.IsInitialized)
+        {
+            ProcessHand(rightHand, _leftHandWristPosition);
+        }
     }
     
     public bool IsDataReady()
@@ -78,26 +89,17 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
                (rightHand.IsInitialized && rightHand.ovrSkeleton.IsDataValid);
     }
 
-    private void ProcessHand(HandData hand)
+    private void ProcessHand(HandData hand, Transform referenceWrist)
     {
-        if (!hand.ovrSkeleton || !hand.ovrSkeleton.IsDataValid || !hand.IsInitialized)
-        {
-            return;
-        }
-        
-        Transform wristRoot = hand.ovrSkeleton.Bones[(int)OVRSkeleton.BoneId.Hand_WristRoot].Transform;
-        if (!wristRoot) return;
-        
-        Vector3 wristWorldPosition = wristRoot.position;
-        hand.outputData.world_wrist_root.x = wristWorldPosition.x;
-        hand.outputData.world_wrist_root.y = wristWorldPosition.y;
-        hand.outputData.world_wrist_root.z = wristWorldPosition.z;
+        hand.outputData.world_left_hand_wrist_root.x = referenceWrist.position.x;
+        hand.outputData.world_left_hand_wrist_root.y = referenceWrist.position.y;
+        hand.outputData.world_left_hand_wrist_root.z = referenceWrist.position.z;
 
         foreach (var bone in hand.ovrSkeleton.Bones)
         {
             if (_boneIdToMediaPipeIndex.TryGetValue(bone.Id, out int mediaPipeIndex))
             {
-                Vector3 localPosition = wristRoot.InverseTransformPoint(bone.Transform.position);
+                Vector3 localPosition = referenceWrist.InverseTransformPoint(bone.Transform.position);
                 Vector3 mediaPipePosition = new Vector3(localPosition.x, -localPosition.y, localPosition.z);
                 hand.mediaPipeLandmarks[mediaPipeIndex] = mediaPipePosition;
             }
