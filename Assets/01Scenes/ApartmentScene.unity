@@ -13571,6 +13571,7 @@ GameObject:
   - component: {fileID: 512805117}
   - component: {fileID: 512805119}
   - component: {fileID: 512805118}
+  - component: {fileID: 512805122}
   m_Layer: 0
   m_Name: InteractableSaucePan
   m_TagString: Untagged
@@ -13721,6 +13722,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 512805115}
   m_Mesh: {fileID: 4300006, guid: abc00000000005467720061063677710, type: 3}
+--- !u!114 &512805122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512805115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03eb481474b30c3419be77f3796bde82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
 --- !u!1001 &513535315
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32739,6 +32752,7 @@ GameObject:
   - component: {fileID: 1303757211}
   - component: {fileID: 1303757213}
   - component: {fileID: 1303757212}
+  - component: {fileID: 1303757216}
   m_Layer: 0
   m_Name: InteractableKnife
   m_TagString: Untagged
@@ -32889,6 +32903,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1303757209}
   m_Mesh: {fileID: 4300006, guid: abc00000000003713736866509541809, type: 3}
+--- !u!114 &1303757216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303757209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03eb481474b30c3419be77f3796bde82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
 --- !u!1001 &1304040643
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40757,6 +40783,7 @@ GameObject:
   - component: {fileID: 1594909126}
   - component: {fileID: 1594909130}
   - component: {fileID: 1594909124}
+  - component: {fileID: 1594909131}
   m_Layer: 0
   m_Name: InteractableUtensil
   m_TagString: Untagged
@@ -40907,6 +40934,18 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300008, guid: abc00000000017673044607000564445, type: 3}
+--- !u!114 &1594909131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594909123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03eb481474b30c3419be77f3796bde82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
 --- !u!1001 &1595739955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43258,6 +43297,7 @@ GameObject:
   - component: {fileID: 1685925804}
   - component: {fileID: 1685925806}
   - component: {fileID: 1685925805}
+  - component: {fileID: 1685925809}
   m_Layer: 0
   m_Name: InteractablePot
   m_TagString: Untagged
@@ -43408,6 +43448,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1685925802}
   m_Mesh: {fileID: 4300006, guid: abc00000000011075556604293741078, type: 3}
+--- !u!114 &1685925809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685925802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03eb481474b30c3419be77f3796bde82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
 --- !u!1001 &1686096661
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54803,7 +54855,7 @@ MonoBehaviour:
     ovrSkeleton: {fileID: 1684305612}
     mediaPipeLandmarks: []
     outputData:
-      world_wrist_root:
+      world_left_hand_wrist_root:
         x: 0
         y: 0
         z: 0
@@ -54812,7 +54864,7 @@ MonoBehaviour:
     ovrSkeleton: {fileID: 2003398357}
     mediaPipeLandmarks: []
     outputData:
-      world_wrist_root:
+      world_left_hand_wrist_root:
         x: 0
         y: 0
         z: 0
