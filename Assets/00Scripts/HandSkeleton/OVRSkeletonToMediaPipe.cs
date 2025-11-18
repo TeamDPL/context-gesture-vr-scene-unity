@@ -72,8 +72,16 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
     {
         if (leftHand.ovrSkeleton && leftHand.ovrSkeleton.IsDataValid && leftHand.IsInitialized)
         {
-            _leftHandWristPosition = leftHand.ovrSkeleton.Bones[(int)OVRSkeleton.BoneId.XRHand_Wrist].Transform;
-            ProcessHand(leftHand, _leftHandWristPosition);
+            foreach (var bone in leftHand.ovrSkeleton.Bones)
+            {
+                if (bone.Id == OVRSkeleton.BoneId.XRHand_Wrist)
+                {
+                    _leftHandWristPosition = bone.Transform;
+                    break;
+                }
+            }
+            
+            if (_leftHandWristPosition) ProcessHand(leftHand, _leftHandWristPosition);
         }
 
         if (_leftHandWristPosition && rightHand.ovrSkeleton && rightHand.ovrSkeleton.IsDataValid &&
@@ -100,6 +108,10 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
             if (_boneIdToMediaPipeIndex.TryGetValue(bone.Id, out int mediaPipeIndex))
             {
                 Vector3 localPosition = referenceWrist.InverseTransformPoint(bone.Transform.position);
+                
+                // approximation
+                if (localPosition.magnitude < 0.0001f) localPosition = Vector3.zero;
+                
                 Vector3 mediaPipePosition = new Vector3(localPosition.x, -localPosition.y, localPosition.z);
                 hand.mediaPipeLandmarks[mediaPipeIndex] = mediaPipePosition;
             }
