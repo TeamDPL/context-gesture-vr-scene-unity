@@ -64,8 +64,8 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
 
     void Start()
     {
-        if (leftHand.ovrSkeleton != null) leftHand.Initialize();
-        if (rightHand.ovrSkeleton != null) rightHand.Initialize();
+        if (leftHand.ovrSkeleton) leftHand.Initialize();
+        if (rightHand.ovrSkeleton) rightHand.Initialize();
     }
 
     void Update()
