@@ -18,6 +18,7 @@ public class GestureContextPayload
     public HandOutputData right_hand;
     public string screen_capture;
     public List<ObjectCapturePayload> object_captures = new List<ObjectCapturePayload>();
+    public List<AvailableItemDTO> available_tools;
     // or other data
 }
 
@@ -85,6 +86,10 @@ public class GestureContextNetwork : MonoBehaviour
     [Range(1, 100)]
     [SerializeField]
     private int jpgQuality = 75;
+    
+    [Header("Action Manager")]
+    [SerializeField]
+    private ActionManager actionManager;
 
     private WebSocket ws;
     private float sendInterval;
@@ -107,7 +112,7 @@ public class GestureContextNetwork : MonoBehaviour
     
     void Start()
     {
-        if (handProcessor == null || vrCamera == null || objectCaptureCamera == null || playerHead == null)
+        if (!handProcessor || !vrCamera || !objectCaptureCamera || !playerHead)
         {
             Debug.LogError("Hand Processor or VR Cam or Obj Capture Cam is not assigned! Disabling network client.");
             this.enabled = false;
@@ -122,14 +127,14 @@ public class GestureContextNetwork : MonoBehaviour
         
         sendInterval = 1.0f / handDataFPS;
         
-        screenCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / screenCaptureIntervalInFrames);
+        screenCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / screenCaptureFPS);
         if (screenCaptureIntervalInFrames < 1) screenCaptureIntervalInFrames = 1;
         
         objCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / objectCaptureFPS);
         if (objCaptureIntervalInFrames < 1) objCaptureIntervalInFrames = 1;
         
         Debug.Log($"Sending hand data every {sendInterval:F2}s ({handDataFPS} FPS).");
-        Debug.Log($"Sending screen capture every {screenCaptureIntervalInFrames} hand frames (approx {screenCaptureIntervalInFrames} FPS).");
+        Debug.Log($"Sending screen capture every {screenCaptureIntervalInFrames} hand frames (approx {screenCaptureFPS} FPS).");
         
         screenRenderTexture = new RenderTexture(screenCaptureWidth, screenCaptureHeight, 24);
         screenTexture = new Texture2D(screenCaptureWidth, screenCaptureHeight, TextureFormat.RGB24, false);
@@ -140,11 +145,24 @@ public class GestureContextNetwork : MonoBehaviour
             Debug.Log("<color=lime>Connected to Python WebSocket at " + serverUrl + "</color>");
             StartCoroutine(SendDataLoop());
         };
+        
+        // response from the backend of the selected object to attach to the hand
         ws.OnMessage += (sender, e) =>
         {
             Debug.Log("Python Response: " + e.Data);
+            MainThreadDispatcher.Enqueue(() =>
+            {
+                Debug.Log("Python Response: " + e.Data);
+                
+                if (actionManager)
+                {
+                    actionManager.ExecuteAction(e.Data);
+                }
+            });
         };
+        
         ws.OnError += (sender, e) => Debug.LogError("WebSocket Error: " + e.Message);
+        
         ws.OnClose += (sender, e) => Debug.Log("Disconnected from Python");
 
         Debug.Log("Attempting to connect to " + serverUrl);
@@ -172,6 +190,11 @@ public class GestureContextNetwork : MonoBehaviour
             if (frameCounter % objCaptureIntervalInFrames == 0)
             {
                 yield return StartCoroutine(CaptureNearbyInteractableObjectsCoroutine());
+            }
+            
+            if (actionManager)
+            {
+                payload.available_tools = actionManager.GetAvailableItemsPayload();
             }
             
             string jsonData = JsonUtility.ToJson(payload);
@@ -210,6 +233,7 @@ public class GestureContextNetwork : MonoBehaviour
         );
         
         int capturedCount = 0;
+        
         for (int i = 0; i < numFound && capturedCount < maxObjectsToCapture; i++)
         {
             Collider objCollider = hitColliders[i];
