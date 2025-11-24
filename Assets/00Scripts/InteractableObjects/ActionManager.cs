@@ -29,14 +29,14 @@ public class AvailableItemDTO
 public class ActionManager : MonoBehaviour
 {
     [Header("Hand Anchors")]
-    [Tooltip("The Transform where items should be attached on the Left Hand (usually the Wrist bone).")]
+    [Tooltip("The Transform where items should be attached on the Left Hand (the Wrist bone).")]
     public Transform leftHandAnchor;
     
     [Tooltip("The Transform where items should be attached on the Right Hand.")]
     public Transform rightHandAnchor;
 
     [Header("Item Database")]
-    [Tooltip("Register your tools here.")]
+    [Tooltip("Tools registration")]
     public List<ItemMapping> availableItems;
     
     public List<AvailableItemDTO> GetAvailableItemsPayload()
@@ -50,6 +50,7 @@ public class ActionManager : MonoBehaviour
 
     // Internal tracker to destroy old items before spawning new ones
     private GameObject _currentHeldItem;
+    private string _currentHeldItemID;
 
     /// <summary>
     /// Call this function when you receive a message from the WebSocket
@@ -63,11 +64,23 @@ public class ActionManager : MonoBehaviour
 
         // Transform targetHand = (result.hand == "left") ? leftHandAnchor : rightHandAnchor;
 
-        SpawnAndAttach(result.ID, rightHandAnchor);
+        _currentHeldItemID = result.ID;
+
+        Invoke(nameof(InvokeSpawn), 5f);
+    }
+
+    private void InvokeSpawn()
+    {
+        SpawnAndAttach(_currentHeldItemID, rightHandAnchor);
     }
 
     private void SpawnAndAttach(string toolName, Transform handTransform)
     {
+        if (_currentHeldItem != null && _currentHeldItemID == toolName)
+        {
+            return;
+        }
+        
         ItemMapping itemMap = availableItems.Find(x => x.itemName == toolName);
 
         if (itemMap == null || !itemMap.prefab)
@@ -103,6 +116,7 @@ public class ActionManager : MonoBehaviour
         }
 
         _currentHeldItem = newObj;
+        _currentHeldItemID = toolName;
         Debug.Log($"<color=cyan>Equipped {toolName} to {handTransform.name}</color>");
     }
 }
