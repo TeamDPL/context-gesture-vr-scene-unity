@@ -18,7 +18,7 @@ public class GestureContextPayload
     public HandOutputData right_hand;
     public string screen_capture;
     public List<ObjectCapturePayload> object_captures = new List<ObjectCapturePayload>();
-    public List<AvailableItemDTO> available_tools;
+    public List<AvailableItemDTO> available_tools; // inventory items
     // or other data
 }
 

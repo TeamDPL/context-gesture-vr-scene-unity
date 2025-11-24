@@ -43349,8 +43349,8 @@ MonoBehaviour:
     prefab: {fileID: 6169011076355838787, guid: 953c9e625f76d4a27b6ecf1f4516886a, type: 3}
     positionOffset: {x: 0, y: 0, z: 0}
     rotationOffset: {x: 0, y: 0, z: 0}
-  - itemName: SaucePan
-    prefab: {fileID: 1031045871858409480, guid: 168f9c5a63cfc40a4b02932bf5ba880a, type: 3}
+  - itemName: WoodenLgBowl
+    prefab: {fileID: 6544143500906799372, guid: 3d60c38575fa14e97ad5d5805a3440bf, type: 3}
     positionOffset: {x: 0, y: 0, z: 0}
     rotationOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &1695330162
