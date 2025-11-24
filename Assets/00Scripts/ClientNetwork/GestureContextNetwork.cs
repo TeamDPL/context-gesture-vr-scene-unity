@@ -149,7 +149,6 @@ public class GestureContextNetwork : MonoBehaviour
         // response from the backend of the selected object to attach to the hand
         ws.OnMessage += (sender, e) =>
         {
-            Debug.Log("Python Response: " + e.Data);
             MainThreadDispatcher.Enqueue(() =>
             {
                 Debug.Log("Python Response: " + e.Data);

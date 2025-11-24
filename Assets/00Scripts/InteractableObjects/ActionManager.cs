@@ -16,9 +16,7 @@ public class ItemMapping
 [System.Serializable]
 public class PythonResult
 {
-    public string action;
-    public string tool;
-    public string hand;
+    public string ID;
 }
 
 [System.Serializable]
@@ -61,16 +59,15 @@ public class ActionManager : MonoBehaviour
     {
         PythonResult result = JsonUtility.FromJson<PythonResult>(jsonResponse);
         
-        if (result.action != "Equip") return;
+        // if (result.action != "Equip") return;
 
-        Transform targetHand = (result.hand == "left") ? leftHandAnchor : rightHandAnchor;
+        // Transform targetHand = (result.hand == "left") ? leftHandAnchor : rightHandAnchor;
 
-        SpawnAndAttach(result.tool, targetHand);
+        SpawnAndAttach(result.ID, rightHandAnchor);
     }
 
     private void SpawnAndAttach(string toolName, Transform handTransform)
     {
-        // 3. Find the matching prefab
         ItemMapping itemMap = availableItems.Find(x => x.itemName == toolName);
 
         if (itemMap == null || !itemMap.prefab)
@@ -82,7 +79,8 @@ public class ActionManager : MonoBehaviour
         // 4. Clean up previous item (optional - depends on game design)
         if (_currentHeldItem)
         {
-            Destroy(_currentHeldItem);
+            // Destroy(_currentHeldItem);
+            return;
         }
 
         // 5. Instantiate the object
