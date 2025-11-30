@@ -13,7 +13,8 @@ public class Landmark
 [System.Serializable]
 public class HandOutputData
 {
-    public Landmark world_left_hand_wrist_root = new Landmark();
+    public bool is_left_hand_wrist_based = true;
+    public Landmark world_hand_wrist_root = new Landmark();
     public List<Landmark> relative_landmarks = new List<Landmark>();
 }
 
@@ -50,7 +51,8 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
     public HandData leftHand;
     public HandData rightHand;
 
-    private Transform _leftHandWristPosition;
+    private Transform _currentReferenceHandWrist;
+    private bool _isLeftHandWristBased;
     
     private readonly Dictionary<OVRSkeleton.BoneId, int> _boneIdToMediaPipeIndex = new Dictionary<OVRSkeleton.BoneId, int>
     {
@@ -62,46 +64,71 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
         { OVRSkeleton.BoneId.XRHand_LittleProximal, 17 }, { OVRSkeleton.BoneId.XRHand_LittleIntermediate, 18 }, { OVRSkeleton.BoneId.XRHand_LittleDistal, 19 }, { OVRSkeleton.BoneId.XRHand_LittleTip, 20 }
     };
 
-    void Start()
+    private void Start()
     {
         if (leftHand.ovrSkeleton) leftHand.Initialize();
         if (rightHand.ovrSkeleton) rightHand.Initialize();
     }
 
-    void Update()
+    private void Update()
     {
-        if (leftHand.ovrSkeleton && leftHand.ovrSkeleton.IsDataValid && leftHand.IsInitialized)
+        _currentReferenceHandWrist = null;
+        
+        if (IsHandTracked(leftHand))
         {
-            foreach (var bone in leftHand.ovrSkeleton.Bones)
-            {
-                if (bone.Id == OVRSkeleton.BoneId.XRHand_Wrist)
-                {
-                    _leftHandWristPosition = bone.Transform;
-                    break;
-                }
-            }
-            
-            if (_leftHandWristPosition) ProcessHand(leftHand, _leftHandWristPosition);
+            _currentReferenceHandWrist = GetWristTransform(leftHand.ovrSkeleton);
+            _isLeftHandWristBased = true;
         }
 
-        if (_leftHandWristPosition && rightHand.ovrSkeleton && rightHand.ovrSkeleton.IsDataValid &&
-            rightHand.IsInitialized)
+        if (!_currentReferenceHandWrist && IsHandTracked(rightHand))
         {
-            ProcessHand(rightHand, _leftHandWristPosition);
+            _currentReferenceHandWrist = GetWristTransform(rightHand.ovrSkeleton);
+            _isLeftHandWristBased = false;
         }
+
+        if (_currentReferenceHandWrist)
+        {
+            if (IsHandTracked(leftHand))
+            {
+                ProcessHand(leftHand, _currentReferenceHandWrist, _isLeftHandWristBased);
+            }
+
+            if (IsHandTracked(rightHand))
+            {
+                ProcessHand(rightHand, _currentReferenceHandWrist, _isLeftHandWristBased);
+            }
+        }
+    }
+
+    private bool IsHandTracked(HandData hand)
+    {
+        return hand.ovrSkeleton && hand.ovrSkeleton.IsDataValid && hand.IsInitialized;
+    }
+
+    private Transform GetWristTransform(OVRSkeleton skeleton)
+    {
+        foreach (var bone in skeleton.Bones)
+        {
+            if (bone.Id == OVRSkeleton.BoneId.XRHand_Wrist)
+            {
+                return bone.Transform;
+            }
+        }
+        return null;
     }
     
     public bool IsDataReady()
     {
-        return (leftHand.IsInitialized && leftHand.ovrSkeleton.IsDataValid) || 
-               (rightHand.IsInitialized && rightHand.ovrSkeleton.IsDataValid);
+        return IsHandTracked(leftHand) || IsHandTracked(rightHand);
     }
 
-    private void ProcessHand(HandData hand, Transform referenceWrist)
+    private void ProcessHand(HandData hand, Transform referenceWrist, bool isLeftHandWristBased)
     {
-        hand.outputData.world_left_hand_wrist_root.x = referenceWrist.position.x;
-        hand.outputData.world_left_hand_wrist_root.y = referenceWrist.position.y;
-        hand.outputData.world_left_hand_wrist_root.z = referenceWrist.position.z;
+        hand.outputData.is_left_hand_wrist_based = isLeftHandWristBased;
+        
+        hand.outputData.world_hand_wrist_root.x = referenceWrist.position.x;
+        hand.outputData.world_hand_wrist_root.y = referenceWrist.position.y;
+        hand.outputData.world_hand_wrist_root.z = referenceWrist.position.z;
 
         foreach (var bone in hand.ovrSkeleton.Bones)
         {
