@@ -91,26 +91,45 @@ public class GestureContextNetwork : MonoBehaviour
     [SerializeField]
     private ActionManager actionManager;
 
-    private WebSocket ws;
-    private float sendInterval;
-    private GestureContextPayload payload = new GestureContextPayload();
+    private WebSocket _ws;
+    private float _sendInterval;
+    private GestureContextPayload _payload = new GestureContextPayload();
     
     // texture object for the screen capture
-    private Texture2D screenTexture;
-    private RenderTexture screenRenderTexture;
-    private WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
+    private Texture2D _screenTexture;
+    private RenderTexture _screenRenderTexture;
+    private WaitForEndOfFrame _waitForEndOfFrame = new WaitForEndOfFrame();
 
-    private int frameCounter = 0;
-    private int screenCaptureIntervalInFrames;
-    private int objCaptureIntervalInFrames;
+    private int _frameCounter = 0;
+    private int _screenCaptureIntervalInFrames;
+    private int _objCaptureIntervalInFrames;
     
     // Reusable textures for object capture
-    private Texture2D objectTexture;
-    private RenderTexture objectRenderTexture;
+    private Texture2D _objectTexture;
+    private RenderTexture _objectRenderTexture;
     
-    private Collider[] hitColliders = new Collider[50];
+    private Collider[] _hitColliders = new Collider[50];
+
+    private bool _shouldTransmitData = false;
+
+    public void TriggerDataTransmission(float duration)
+    {
+        StopCoroutine(nameof(DataTransmissionTimer));
+        StartCoroutine(DataTransmissionTimer(duration));
+    }
+
+    private IEnumerator DataTransmissionTimer(float duration)
+    {
+        _shouldTransmitData = true;
+        Debug.Log("<color=cyan>Data Transmission started</color>");
+        
+        yield return new WaitForSeconds(duration);
+        
+        _shouldTransmitData = false;
+        Debug.Log("<color=orange>Data Transmission stopped</color>");
+    }
     
-    void Start()
+    private void Start()
     {
         if (!handProcessor || !vrCamera || !objectCaptureCamera || !playerHead)
         {
@@ -119,35 +138,35 @@ public class GestureContextNetwork : MonoBehaviour
             return;
         }
 
-        objectRenderTexture = new RenderTexture(captureResolution, captureResolution, 24);
-        objectTexture = new Texture2D(captureResolution, captureResolution, TextureFormat.RGB24, false);
+        _objectRenderTexture = new RenderTexture(captureResolution, captureResolution, 24);
+        _objectTexture = new Texture2D(captureResolution, captureResolution, TextureFormat.RGB24, false);
         
         objectCaptureCamera.enabled = false;
-        objectCaptureCamera.targetTexture = objectRenderTexture;
+        objectCaptureCamera.targetTexture = _objectRenderTexture;
         
-        sendInterval = 1.0f / handDataFPS;
+        _sendInterval = 1.0f / handDataFPS;
         
-        screenCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / screenCaptureFPS);
-        if (screenCaptureIntervalInFrames < 1) screenCaptureIntervalInFrames = 1;
+        _screenCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / screenCaptureFPS);
+        if (_screenCaptureIntervalInFrames < 1) _screenCaptureIntervalInFrames = 1;
         
-        objCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / objectCaptureFPS);
-        if (objCaptureIntervalInFrames < 1) objCaptureIntervalInFrames = 1;
+        _objCaptureIntervalInFrames = Mathf.RoundToInt(handDataFPS / objectCaptureFPS);
+        if (_objCaptureIntervalInFrames < 1) _objCaptureIntervalInFrames = 1;
         
-        Debug.Log($"Sending hand data every {sendInterval:F2}s ({handDataFPS} FPS).");
-        Debug.Log($"Sending screen capture every {screenCaptureIntervalInFrames} hand frames (approx {screenCaptureFPS} FPS).");
+        Debug.Log($"Sending hand data every {_sendInterval:F2}s ({handDataFPS} FPS).");
+        Debug.Log($"Sending screen capture every {_screenCaptureIntervalInFrames} hand frames (approx {screenCaptureFPS} FPS).");
         
-        screenRenderTexture = new RenderTexture(screenCaptureWidth, screenCaptureHeight, 24);
-        screenTexture = new Texture2D(screenCaptureWidth, screenCaptureHeight, TextureFormat.RGB24, false);
+        _screenRenderTexture = new RenderTexture(screenCaptureWidth, screenCaptureHeight, 24);
+        _screenTexture = new Texture2D(screenCaptureWidth, screenCaptureHeight, TextureFormat.RGB24, false);
         
-        ws = new WebSocket(serverUrl);
-        ws.OnOpen += (sender, e) =>
+        _ws = new WebSocket(serverUrl);
+        _ws.OnOpen += (sender, e) =>
         {
             Debug.Log("<color=lime>Connected to Python WebSocket at " + serverUrl + "</color>");
             StartCoroutine(SendDataLoop());
         };
         
         // response from the backend of the selected object to attach to the hand
-        ws.OnMessage += (sender, e) =>
+        _ws.OnMessage += (sender, e) =>
         {
             MainThreadDispatcher.Enqueue(() =>
             {
@@ -160,66 +179,71 @@ public class GestureContextNetwork : MonoBehaviour
             });
         };
         
-        ws.OnError += (sender, e) => Debug.LogError("WebSocket Error: " + e.Message);
+        _ws.OnError += (sender, e) => Debug.LogError("WebSocket Error: " + e.Message);
         
-        ws.OnClose += (sender, e) => Debug.Log("Disconnected from Python");
+        _ws.OnClose += (sender, e) => Debug.Log("Disconnected from Python");
 
         Debug.Log("Attempting to connect to " + serverUrl);
-        ws.Connect();
+        _ws.Connect();
     }
     
     private IEnumerator SendDataLoop()
     {
-        while (ws.ReadyState == WebSocketState.Open)
+        while (_ws.ReadyState == WebSocketState.Open)
         {
-            yield return new WaitForSeconds(sendInterval);
-            frameCounter++;
+            if (!_shouldTransmitData)
+            {
+                continue;
+            }
+            
+            yield return new WaitForSeconds(_sendInterval);
+            _frameCounter++;
             
             if (!handProcessor.IsDataReady()) continue;
             
-            payload.left_hand = handProcessor.leftHand.outputData;
-            payload.right_hand = handProcessor.rightHand.outputData;
-            payload.object_captures.Clear();
+            _payload.left_hand = handProcessor.leftHand.outputData;
+            _payload.right_hand = handProcessor.rightHand.outputData;
+            _payload.object_captures.Clear();
 
-            if (frameCounter % screenCaptureIntervalInFrames == 0)
+            if (_frameCounter % _screenCaptureIntervalInFrames == 0)
             {
                 yield return StartCoroutine(CaptureScreenCoroutine());
             }
             
-            if (frameCounter % objCaptureIntervalInFrames == 0)
+            if (_frameCounter % _objCaptureIntervalInFrames == 0)
             {
                 yield return StartCoroutine(CaptureNearbyInteractableObjectsCoroutine());
             }
             
             if (actionManager)
             {
-                payload.available_tools = actionManager.GetAvailableItemsPayload();
+                _payload.available_tools = actionManager.GetAvailableItemsPayload();
             }
             
-            string jsonData = JsonUtility.ToJson(payload);
-            ws.Send(jsonData);
+            string jsonData = JsonUtility.ToJson(_payload);
+            _ws.Send(jsonData);
 
-            payload.screen_capture = null;
+            _payload.screen_capture = null;
         }
     }
 
     private IEnumerator CaptureScreenCoroutine()
     {
-        yield return waitForEndOfFrame;
+        yield return _waitForEndOfFrame;
         
-        vrCamera.targetTexture = screenRenderTexture;
+        vrCamera.targetTexture = _screenRenderTexture;
         vrCamera.Render();
         
-        RenderTexture.active = screenRenderTexture;
-        screenTexture.ReadPixels(new Rect(0, 0, screenCaptureWidth, screenCaptureHeight), 0, 0);
-        screenTexture.Apply();
+        RenderTexture.active = _screenRenderTexture;
+        _screenTexture.ReadPixels(new Rect(0, 0, screenCaptureWidth, screenCaptureHeight), 0, 0);
+        _screenTexture.Apply();
         
         vrCamera.targetTexture = null;
         RenderTexture.active = null;
         
-        byte[] imageBytes = screenTexture.EncodeToJPG(jpgQuality);
+        byte[] imageBytes = _screenTexture.EncodeToJPG(jpgQuality);
         
-        payload.screen_capture = Convert.ToBase64String(imageBytes);
+        _payload.screen_capture = Convert.ToBase64String(imageBytes);
     }
     
     private IEnumerator CaptureNearbyInteractableObjectsCoroutine()
@@ -227,7 +251,7 @@ public class GestureContextNetwork : MonoBehaviour
         int numFound = Physics.OverlapSphereNonAlloc(
             playerHead.position, 
             contextRadius, 
-            hitColliders, 
+            _hitColliders, 
             interactableLayers
         );
         
@@ -235,7 +259,7 @@ public class GestureContextNetwork : MonoBehaviour
         
         for (int i = 0; i < numFound && capturedCount < maxObjectsToCapture; i++)
         {
-            Collider objCollider = hitColliders[i];
+            Collider objCollider = _hitColliders[i];
             Renderer objRenderer = objCollider.GetComponent<Renderer>();
             
             if (!objRenderer) continue;
@@ -249,19 +273,19 @@ public class GestureContextNetwork : MonoBehaviour
             objectCaptureCamera.transform.position = bounds.center - (playerHead.forward * camDistance);
             objectCaptureCamera.transform.LookAt(bounds.center);
             
-            yield return waitForEndOfFrame;
+            yield return _waitForEndOfFrame;
             
             objectCaptureCamera.Render();
             
-            RenderTexture.active = objectRenderTexture;
-            objectTexture.ReadPixels(new Rect(0, 0, captureResolution, captureResolution), 0, 0);
-            objectTexture.Apply();
+            RenderTexture.active = _objectRenderTexture;
+            _objectTexture.ReadPixels(new Rect(0, 0, captureResolution, captureResolution), 0, 0);
+            _objectTexture.Apply();
             RenderTexture.active = null;
             
-            byte[] imageBytes = objectTexture.EncodeToJPG(jpgQuality);
+            byte[] imageBytes = _objectTexture.EncodeToJPG(jpgQuality);
             string base64Image = Convert.ToBase64String(imageBytes);
             
-            payload.object_captures.Add(new ObjectCapturePayload {
+            _payload.object_captures.Add(new ObjectCapturePayload {
                 label = objCollider.gameObject.tag, // Use tag or name
                 image_base64 = base64Image
             });
@@ -272,8 +296,8 @@ public class GestureContextNetwork : MonoBehaviour
 
     void OnDestroy()
     {
-        ws?.Close();
-        if (objectRenderTexture) Destroy(objectRenderTexture);
-        if (objectTexture) Destroy(objectTexture);
+        _ws?.Close();
+        if (_objectRenderTexture) Destroy(_objectRenderTexture);
+        if (_objectTexture) Destroy(_objectTexture);
     }
 }

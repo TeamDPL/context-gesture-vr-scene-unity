@@ -64,9 +64,10 @@ public class ActionManager : MonoBehaviour
 
         // Transform targetHand = (result.hand == "left") ? leftHandAnchor : rightHandAnchor;
 
-        _currentHeldItemID = result.ID;
+        SpawnAndAttach(result.ID, rightHandAnchor);
 
-        Invoke(nameof(InvokeSpawn), 5f);
+        // _currentHeldItemID = result.ID;
+        // Invoke(nameof(InvokeSpawn), 5f);
     }
 
     private void InvokeSpawn()
