@@ -25,7 +25,6 @@ public class GestureContextPayload
 public class GestureContextNetwork : MonoBehaviour
 {
     [Header("Dependencies")]
-    [Tooltip("Drag the object that has your OVRSkeletonToMediaPipe script here.")]
     [SerializeField]
     private OVRSkeletonToMediaPipe handProcessor;
 
