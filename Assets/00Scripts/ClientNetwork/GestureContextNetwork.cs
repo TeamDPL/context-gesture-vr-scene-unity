@@ -139,11 +139,13 @@ public class GestureContextNetwork : MonoBehaviour
         yield return new WaitForSeconds(duration);
         
         _shouldTransmitData = false;
-        OnStartDataTransmission?.Invoke();
+        OnStopDataTransmission?.Invoke();
     }
     
     private void Start()
     {
+        Debug.Log("<color=red>HERE?</color>");
+
         if (!handProcessor || !vrCamera || !objectCaptureCamera || !playerHead)
         {
             Debug.LogError("Hand Processor or VR Cam or Obj Capture Cam is not assigned! Disabling network client.");
@@ -206,6 +208,7 @@ public class GestureContextNetwork : MonoBehaviour
         {
             if (!_shouldTransmitData)
             {
+                yield return null;
                 continue;
             }
             

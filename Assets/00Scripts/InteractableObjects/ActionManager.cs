@@ -16,7 +16,8 @@ public class ItemMapping
 [System.Serializable]
 public class PythonResult
 {
-    public string ID;
+    public string predicted_tool;
+    public bool is_left_hand_wrist_based;
 }
 
 [System.Serializable]
@@ -64,7 +65,7 @@ public class ActionManager : MonoBehaviour
 
         // Transform targetHand = (result.hand == "left") ? leftHandAnchor : rightHandAnchor;
 
-        SpawnAndAttach(result.ID, rightHandAnchor);
+        SpawnAndAttach(result.predicted_tool, rightHandAnchor);
 
         // _currentHeldItemID = result.ID;
         // Invoke(nameof(InvokeSpawn), 5f);
