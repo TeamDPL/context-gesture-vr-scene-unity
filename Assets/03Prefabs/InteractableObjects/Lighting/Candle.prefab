@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 5320890531109302656}
   - component: {fileID: 5059766784793243627}
   m_Layer: 6
-  m_Name: InteractableCandle
+  m_Name: Candle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

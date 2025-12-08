@@ -115,10 +115,16 @@ public class GestureContextNetwork : MonoBehaviour
     private Collider[] _hitColliders = new Collider[50];
 
     private bool _shouldTransmitData = false;
+    private bool _canSendData = true;
+    private bool _canReceiveItem = true;
     private float _dataSendDuration = 0f;
 
     public void TriggerDataTransmission(float duration)
     {
+        if (!_canSendData) return;
+
+        _canSendData = false;
+        _canReceiveItem = true;
         OnTriggerDataTransmission?.Invoke();
         _dataSendDuration = duration;
         Invoke(nameof(StartDataTransmissionTimer), 1f);
@@ -138,13 +144,16 @@ public class GestureContextNetwork : MonoBehaviour
         yield return new WaitForSeconds(duration);
         
         _shouldTransmitData = false;
+       
         OnStopDataTransmission?.Invoke();
+
+        yield return new WaitForSeconds(duration);
+
+        _canSendData = true;
     }
     
     private void Start()
     {
-        Debug.Log("<color=red>HERE?</color>");
-
         if (!handProcessor || !vrCamera || !objectCaptureCamera || !playerHead)
         {
             Debug.LogError("Hand Processor or VR Cam or Obj Capture Cam is not assigned! Disabling network client.");
@@ -186,9 +195,10 @@ public class GestureContextNetwork : MonoBehaviour
             {
                 Debug.Log("Python Response: " + e.Data);
                 
-                if (actionManager)
+                if (actionManager && _canReceiveItem)
                 {
                     actionManager.ExecuteAction(e.Data);
+                    _canReceiveItem = false;
                 }
             });
         };

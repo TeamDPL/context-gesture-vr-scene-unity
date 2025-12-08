@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
 
 [System.Serializable]
 public class Landmark
@@ -43,8 +42,6 @@ public class HandData
     }
 }
 
-
-// --- Main MonoBehaviour (Now much cleaner!) ---
 public class OVRSkeletonToMediaPipe : MonoBehaviour
 {
     [Header("Hand Skeletons")]
@@ -70,33 +67,43 @@ public class OVRSkeletonToMediaPipe : MonoBehaviour
         if (rightHand.ovrSkeleton) rightHand.Initialize();
     }
 
-    private void Update()
+    public void SetReferenceHand(bool isLeftHandBased)
     {
-        _currentReferenceHandWrist = null;
-        
-        if (IsHandTracked(leftHand))
+        if (isLeftHandBased && IsHandTracked(leftHand))
         {
             _currentReferenceHandWrist = GetWristTransform(leftHand.ovrSkeleton);
             _isLeftHandWristBased = true;
         }
-
-        if (!_currentReferenceHandWrist && IsHandTracked(rightHand))
+        else if (!isLeftHandBased && IsHandTracked(rightHand))
         {
             _currentReferenceHandWrist = GetWristTransform(rightHand.ovrSkeleton);
             _isLeftHandWristBased = false;
         }
+    }
 
-        if (_currentReferenceHandWrist)
+    private void Update()
+    {
+        Transform activeRef = _currentReferenceHandWrist;
+        bool isLeftRef = _isLeftHandWristBased;
+
+        if (!activeRef)
         {
             if (IsHandTracked(leftHand))
             {
-                ProcessHand(leftHand, _currentReferenceHandWrist, _isLeftHandWristBased);
+                activeRef = GetWristTransform(leftHand.ovrSkeleton);
+                isLeftRef = true;
             }
-
-            if (IsHandTracked(rightHand))
+            else if (IsHandTracked(rightHand))
             {
-                ProcessHand(rightHand, _currentReferenceHandWrist, _isLeftHandWristBased);
+                activeRef = GetWristTransform(rightHand.ovrSkeleton);
+                isLeftRef = false;
             }
+        }
+
+        if (activeRef)
+        {
+            if (IsHandTracked(leftHand)) ProcessHand(leftHand, activeRef, isLeftRef);
+            if (IsHandTracked(rightHand)) ProcessHand(rightHand, activeRef, isLeftRef);
         }
     }
 
