@@ -90,6 +90,11 @@ public class GestureContextNetwork : MonoBehaviour
     [Header("Action Manager")]
     [SerializeField]
     private ActionManager actionManager;
+    
+    // public events
+    public static event Action OnTriggerDataTransmission;
+    public static event Action OnStartDataTransmission;
+    public static event Action OnStopDataTransmission;
 
     private WebSocket _ws;
     private float _sendInterval;
@@ -111,22 +116,30 @@ public class GestureContextNetwork : MonoBehaviour
     private Collider[] _hitColliders = new Collider[50];
 
     private bool _shouldTransmitData = false;
+    private float _dataSendDuration = 0f;
 
     public void TriggerDataTransmission(float duration)
     {
+        OnTriggerDataTransmission?.Invoke();
+        _dataSendDuration = duration;
+        Invoke(nameof(StartDataTransmissionTimer), 1f);
+    }
+    
+    private void StartDataTransmissionTimer()
+    {
         StopCoroutine(nameof(DataTransmissionTimer));
-        StartCoroutine(DataTransmissionTimer(duration));
+        StartCoroutine(DataTransmissionTimer(_dataSendDuration));
     }
 
     private IEnumerator DataTransmissionTimer(float duration)
     {
         _shouldTransmitData = true;
-        Debug.Log("<color=cyan>Data Transmission started</color>");
+        OnStartDataTransmission?.Invoke();
         
         yield return new WaitForSeconds(duration);
         
         _shouldTransmitData = false;
-        Debug.Log("<color=orange>Data Transmission stopped</color>");
+        OnStartDataTransmission?.Invoke();
     }
     
     private void Start()

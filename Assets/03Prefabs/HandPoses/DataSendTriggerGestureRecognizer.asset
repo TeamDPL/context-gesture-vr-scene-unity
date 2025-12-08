@@ -15,15 +15,15 @@ MonoBehaviour:
   _shapeName: DataSendTriggerGesture
   _thumbFeatureConfigs:
     _value:
-    - _mode: 0
+    - _mode: 1
       _feature: 0
       _state: 0
-    - _mode: 0
+    - _mode: 1
       _feature: 1
       _state: 3
     - _mode: 0
-      _feature: 2
-      _state: 8
+      _feature: 3
+      _state: 9
   _indexFeatureConfigs:
     _value:
     - _mode: 1
@@ -34,25 +34,25 @@ MonoBehaviour:
       _state: 3
   _middleFeatureConfigs:
     _value:
-    - _mode: 1
+    - _mode: 0
       _feature: 0
       _state: 0
-    - _mode: 1
+    - _mode: 0
       _feature: 1
       _state: 3
   _ringFeatureConfigs:
     _value:
-    - _mode: 1
+    - _mode: 0
       _feature: 0
       _state: 0
-    - _mode: 1
+    - _mode: 0
       _feature: 1
       _state: 3
   _pinkyFeatureConfigs:
     _value:
-    - _mode: 1
+    - _mode: 0
       _feature: 0
       _state: 0
-    - _mode: 1
+    - _mode: 0
       _feature: 1
       _state: 3
