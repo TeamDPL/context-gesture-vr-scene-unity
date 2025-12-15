@@ -9,7 +9,6 @@ public class CanvasNetworkEventSubscriber : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI processTxt;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
         GestureContextNetwork.OnTriggerDataTransmission += HandleOnTriggerDataTransmission;

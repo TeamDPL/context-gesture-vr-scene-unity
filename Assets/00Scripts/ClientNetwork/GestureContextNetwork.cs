@@ -311,7 +311,7 @@ public class GestureContextNetwork : MonoBehaviour
             string base64Image = Convert.ToBase64String(imageBytes);
             
             _payload.object_captures.Add(new ObjectCapturePayload {
-                label = objCollider.gameObject.tag, // Use tag or name
+                label = objCollider.gameObject.tag,
                 image_base64 = base64Image
             });
             

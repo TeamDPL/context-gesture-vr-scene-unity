@@ -45150,6 +45150,10 @@ MonoBehaviour:
     prefab: {fileID: 7998213519541661272, guid: f5534be7be3eb4d9188ed31f0e0ca8f5, type: 3}
     positionOffset: {x: 0, y: 0, z: 0}
     rotationOffset: {x: 0, y: 0, z: 0}
+  - itemName: Towel
+    prefab: {fileID: 787958198954056442, guid: abd5683ff37b24012811b74857ae4490, type: 3}
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
   availableItems_kitchen:
   - itemName: Butter_Knife
     prefab: {fileID: 3806075678961255049, guid: f3775f3afb9874a93ab938afafd64a4c, type: 3}
